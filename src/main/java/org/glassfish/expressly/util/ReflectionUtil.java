@@ -176,13 +176,21 @@ public class ReflectionUtil {
         throw new PropertyNotFoundException(MessageFactory.get("error.property.notfound", base, name));
     }
 
-    /*
-     * This method duplicates code in jakarta.el.ELUtil. When making changes keep the code in sync.
-     */
     public static Object invokeMethod(ELContext context, Method method, Object base, Object[] params) {
-        Object[] parameters = buildParameters(context, method.getParameterTypes(), method.isVarArgs(), params);
-
         try {
+            int paramCount = params == null ? 0 : params.length;
+            if (paramCount == 0) {
+                for (Class parameterType : method.getParameterTypes()) {
+                    String parameterTypeName = parameterType.getName();
+                    if (parameterTypeName.matches("jakarta.faces.event.*")
+                            || parameterTypeName.matches("org.primefaces.event.*")
+                            || parameterTypeName.matches("org.primefaces.extensions.event.*")) {
+                        return method.invoke(base, params);
+                    }
+                }
+            }
+            Object[] parameters = buildParameters(
+                    context, method.getParameterTypes(), method.isVarArgs(), params);
             return method.invoke(base, parameters);
         } catch (IllegalAccessException | IllegalArgumentException iae) {
             throw new ELException(iae);
