@@ -176,6 +176,9 @@ public class ReflectionUtil {
         throw new PropertyNotFoundException(MessageFactory.get("error.property.notfound", base, name));
     }
 
+    /*
+     * This method duplicates code in jakarta.el.ELUtil. When making changes keep the code in sync.
+     */
     public static Object invokeMethod(ELContext context, Method method, Object base, Object[] params) {
         try {
             int paramCount = params == null ? 0 : params.length;
